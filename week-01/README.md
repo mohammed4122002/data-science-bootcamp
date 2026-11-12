@@ -81,6 +81,57 @@ Other patterns are also worth investigating. For example, `sibsp` and `parch` ar
 
 ---
 
+## Day 05 — Feature Engineering & Data Encoding
+
+**Notebook:** [`day5_feature_engineering.ipynb`](day5_feature_engineering.ipynb)
+
+### The philosophy of feature engineering: translate meaning into model-ready data
+
+Many machine-learning algorithms operate on numerical representations. Real-world datasets, however, often describe useful information with text labels: a passenger's sex, a departure port, a product category, or a customer segment. Feature engineering is the disciplined process of turning those raw fields into representations that an algorithm can process without losing — or accidentally inventing — meaning.
+
+Encoding is not merely a formatting step. The chosen representation affects how a model interprets a feature. A poor encoding can introduce a false order between categories, while a thoughtful encoding preserves the distinction between labels and quantities. This is why I treat feature transformations as part of the model design, not as incidental data cleanup.
+
+### 1. Binary mapping — `sex`
+
+The Titanic `sex` feature has exactly two categories in this dataset, so a compact binary mapping is appropriate:
+
+- `male` → `1`
+- `female` → `0`
+
+This makes the feature numeric while keeping the mapping transparent and easy to audit. The values are category indicators, not measurements: `1` does not mean “more” sex than `0”, and the numerical gap has no domain meaning. The important engineering practice is to define the mapping explicitly and decide how unexpected or missing labels should be handled in a production pipeline.
+
+### 2. One-hot encoding — `embarked`
+
+The `embarked` feature identifies nominal departure ports. These categories have no natural ranking. Assigning arbitrary ordinal values such as 0, 1, and 2 would risk telling a model that one port is “greater than” another, or that the distance between two port codes is meaningful.
+
+Instead, I used `pd.get_dummies` with `prefix='embarked'` to create separate indicator columns for the categories. Each indicator records whether a passenger belongs to that category. This representation allows a model to learn category-specific effects without inventing an order between ports.
+
+### 3. The dummy-variable trap and `drop_first=True`
+
+If every one-hot column is retained alongside an intercept in a linear model, the dummy columns sum to one for each observation. One column can therefore be reconstructed exactly from the others and the intercept. This creates perfect multicollinearity — the classic **dummy-variable trap** — and makes the design matrix redundant.
+
+Using `drop_first=True` removes one category column and makes it the reference category. When all retained indicators are zero, the observation belongs to that omitted category. The model can estimate the other categories relative to this baseline without including a perfectly redundant set of dummy variables.
+
+This is a modeling convention, not a universal requirement for every algorithm: tree-based models, models without an intercept, and regularized or specialized estimators can have different considerations. For the conventional linear-model setting, dropping one dummy is a clear and widely used approach.
+
+### 4. Concatenation and sanity checks
+
+After creating the encoded `embarked` columns, I removed the original text column and combined the encoded features with the remaining DataFrame using `pd.concat(..., axis=1)`. The `axis=1` argument means the objects are joined side by side as columns, with their row indexes aligned.
+
+Finally, I inspected the encoded sample, resulting shape, column names, and data types. These checks are small but important: they help catch accidental index misalignment, unexpected output columns, or categorical fields that were not transformed as intended.
+
+### Day 05 engineering takeaways
+
+1. Machine-learning models need numerical representations, but encoding must preserve the semantics of the original feature.
+2. Direct binary mapping is concise and interpretable for a truly binary category when the mapping is documented.
+3. One-hot encoding is appropriate for nominal categories such as embarkation ports because it avoids imposing a false ordinal relationship.
+4. `drop_first=True` selects a reference category and prevents the exact dummy-variable dependency in a typical model with an intercept.
+5. After every transformation, inspect the schema and sample rows — never assume that a successful function call guarantees a correct dataset.
+
+> **Production perspective:** In a real training workflow, category handling must be consistent between training and inference. Fit encoders using training data only and apply the learned transformation to validation, test, and production data. Scikit-learn's `OneHotEncoder` within a `ColumnTransformer` is a strong next step for building leakage-safe, reproducible preprocessing pipelines.
+
+---
+
 ## Week 01 Structure
 
 ```text
@@ -91,6 +142,7 @@ week-01/
 │   └── correlation_heatmap.svg
 ├── day3_titanic_cleaning.ipynb
 ├── day4_titanic_visualization.ipynb
+├── day5_feature_engineering.ipynb
 └── README.md
 ```
 
