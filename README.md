@@ -21,7 +21,13 @@ The repository is organized chronologically by week. Each weekly folder will con
 data-science-bootcamp/
 │
 ├── week-01/
-│   └── day3_titanic_cleaning.ipynb
+│   ├── day3_titanic_cleaning.ipynb
+│   ├── day4_titanic_visualization.ipynb
+│   ├── images/
+│   │   ├── age_distribution.svg
+│   │   ├── fare_by_class_boxplot.svg
+│   │   └── correlation_heatmap.svg
+│   └── README.md
 │
 ├── week-02/
 │   └── ...
@@ -86,6 +92,15 @@ The **Interquartile Range (IQR)** is a robust way to flag potential outliers wit
 For numeric features such as `fare`, these fences can help identify unusually low or high observations for further investigation. An important distinction: an IQR flag is a signal to investigate, not an instruction to delete a record. Unusual values may be valid, meaningful observations. Outlier detection should therefore be driven by context and documented reasoning.
 
 **Engineering note:** The current Day 03 notebook implements age imputation, removal of `deck`, targeted removal of rows missing `embarked`, duplicate removal, and a before/after missing-value check. The IQR section documents the outlier-analysis method; I will keep any implemented IQR filtering or deeper EDA clearly recorded in the notebook when that analysis is added.
+
+#### Day 04 — Exploratory Data Analysis & Visualization
+
+**Notebook:** [day4_titanic_visualization.ipynb](week-01/day4_titanic_visualization.ipynb)  
+**Engineering journal:** [Week 01 README](week-01/README.md)
+
+I moved from cleaning the Titanic dataset to exploring its shape visually. The Day 04 notebook builds an age histogram with KDE, a fare-by-class boxplot, and a numerical correlation heatmap. The analysis highlights the concentration of passenger ages around 20–30, the wide and outlier-rich fare distribution in first class, and the negative associations between passenger class and both fare (approximately -0.55) and survival (approximately -0.34).
+
+The charts and detailed interpretation are documented in the Week 01 journal.
 
 #### What this week is teaching me
 
