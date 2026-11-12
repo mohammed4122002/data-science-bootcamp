@@ -65,7 +65,7 @@ The heatmap summarizes pairwise Pearson correlations among the numeric columns. 
 
 **Passenger class and fare: approximately -0.55.** This is a strong negative linear association. The class variable is numerically encoded as 1 for first class, 2 for second class, and 3 for third class. Therefore, a larger `pclass` value means a lower passenger class. The negative coefficient is consistent with fares generally decreasing as the class number increases.
 
-**Passenger class and survival: approximately -0.34.** This negative association indicates that lower numerical class values — especially first class — are associated with higher survival rates. In other words, survival was not evenly distributed across passenger classes. This is an important exploratory signal, but correlation alone does not establish causation or account for other factors such as sex, age, and evacuation access.
+**Passenger class and survival: approximately -0.33.** This negative association indicates that lower numerical class values — especially first class — are associated with higher survival rates. In other words, survival was not evenly distributed across passenger classes. This is an important exploratory signal, but correlation alone does not establish causation or account for other factors such as sex, age, and evacuation access.
 
 Other patterns are also worth investigating. For example, `sibsp` and `parch` are positively associated because both describe family-related travel, while `adult_male` has a notable negative association with survival in this dataset. These relationships motivate more focused analysis rather than immediate conclusions.
 
