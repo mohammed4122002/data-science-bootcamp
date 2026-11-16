@@ -15,137 +15,104 @@ The goal is to build a practical portfolio that demonstrates steady progress —
 
 ## Repository Structure
 
-The repository is organized chronologically by week. Each weekly folder will contain the notebooks, exercises, datasets or dataset references, and notes associated with that stage of the bootcamp.
-
 ```text
 data-science-bootcamp/
-│
 ├── week-01/
+│   ├── images/
 │   ├── day3_titanic_cleaning.ipynb
 │   ├── day4_titanic_visualization.ipynb
-│   ├── images/
-│   │   ├── age_distribution.svg
-│   │   ├── fare_by_class_boxplot.svg
-│   │   └── correlation_heatmap.svg
+│   ├── day5_feature_engineering.ipynb
+│   ├── day6_data_preprocessing_pipeline.ipynb
+│   ├── day7_model_training_evaluation.ipynb
 │   └── README.md
-│
 ├── week-02/
 │   └── ...
-│
 ├── week-03/
 │   └── ...
-│
-├── week-04/
-│   └── ...
-│
 └── README.md
 ```
 
-> The structure will evolve as the bootcamp progresses. Future week folders will be added when their work is ready, rather than filled with empty or placeholder deliverables.
+> The structure evolves as the bootcamp progresses. New deliverables are added when their work is ready, rather than filled with empty placeholders.
 
 ---
 
 ## Weekly Progress & Engineering Journey
 
-### Week 01 — Foundations, Data Cleaning & Exploratory Data Analysis (EDA)
+### Week 01 — Foundations, Data Cleaning, EDA & Machine Learning
 
 **Theme: Before asking data for answers, make sure it deserves your trust.**
 
-The first stage of this journey is about building the habits that make downstream analysis meaningful. I started working with the classic **Titanic dataset** through Seaborn, using Pandas to inspect the data, understand its quality, and apply deliberate cleaning decisions.
-
-This exercise may look simple at first: load a dataset, inspect missing values, and clean a few columns. But it introduces a fundamental engineering lesson — data preparation is not just a preprocessing chore. Every decision changes the dataset, and every change should be explainable.
+The first stage uses the classic **Titanic dataset** to build a disciplined workflow: inspect data quality, explore distributions, engineer model-ready features, prepare data without leakage, and evaluate baseline classifiers.
 
 #### Day 03 — Titanic Data Cleaning
 
 **Notebook:** [day3_titanic_cleaning.ipynb](week-01/day3_titanic_cleaning.ipynb)
 
-The workflow begins by loading the dataset and checking its dimensions and missing-value profile. From there, I focused on a few practical data-quality problems.
-
-**1. Investigating missing data in `deck`**
-
-The `deck` column has approximately **77% missing values** in the commonly used Seaborn Titanic dataset. Keeping a feature with that much missing information without a clear imputation strategy could introduce more uncertainty than value.
-
-For this exercise, I removed the column rather than attempting to manufacture information for most of its records. The broader lesson is that missingness should be investigated before choosing between deletion, imputation, or a more advanced strategy.
-
-**2. Choosing the median for `age`**
-
-I filled missing ages using the column's **median**, rather than its mean.
-
-The mean can be pulled toward unusually high or low observations. The median is more resistant to extreme values, making it a sensible baseline when a distribution is skewed or contains outliers. It is not automatically the right choice for every dataset, but it is a defensible choice here and keeps the initial cleaning workflow straightforward.
-
-**3. Handling incomplete embarkation records**
-
-Rows with missing values in `embarked` were removed using a targeted subset operation. This keeps the rule explicit: remove records missing this particular field, rather than dropping every row that contains any missing value across the dataset.
-
-**4. Removing duplicate records**
-
-I applied `drop_duplicates()` to remove exact duplicate rows. This is a useful baseline quality check, although real production pipelines should define what makes a record a duplicate according to the data's business keys and source semantics.
-
-**5. Thinking critically about outliers with IQR**
-
-The **Interquartile Range (IQR)** is a robust way to flag potential outliers without relying on the mean and standard deviation:
-
-- `IQR = Q3 - Q1`
-- Lower fence: `Q1 - 1.5 × IQR`
-- Upper fence: `Q3 + 1.5 × IQR`
-
-For numeric features such as `fare`, these fences can help identify unusually low or high observations for further investigation. An important distinction: an IQR flag is a signal to investigate, not an instruction to delete a record. Unusual values may be valid, meaningful observations. Outlier detection should therefore be driven by context and documented reasoning.
-
-**Engineering note:** The current Day 03 notebook implements age imputation, removal of `deck`, targeted removal of rows missing `embarked`, duplicate removal, and a before/after missing-value check. The IQR section documents the outlier-analysis method; I will keep any implemented IQR filtering or deeper EDA clearly recorded in the notebook when that analysis is added.
+Loaded the Titanic dataset with Seaborn, inspected dimensions and missing values, removed the high-missingness `deck` column, imputed missing ages with the median, handled missing embarkation records, and removed exact duplicates.
 
 #### Day 04 — Exploratory Data Analysis & Visualization
 
-**Notebook:** [day4_titanic_visualization.ipynb](week-01/day4_titanic_visualization.ipynb)  
-**Engineering journal:** [Week 01 README](week-01/README.md)
+**Notebook:** [day4_titanic_visualization.ipynb](week-01/day4_titanic_visualization.ipynb)
 
-I moved from cleaning the Titanic dataset to exploring its shape visually. The Day 04 notebook builds an age histogram with KDE, a fare-by-class boxplot, and a numerical correlation heatmap. The analysis highlights the concentration of passenger ages around 20–30, the wide and outlier-rich fare distribution in first class, and the negative associations between passenger class and both fare (approximately -0.55) and survival (approximately -0.34).
+Created an age histogram with KDE, a fare-by-class boxplot, and a numerical correlation heatmap. The visual analysis highlights distribution shape, fare differences between passenger classes, and associations between selected numerical features.
 
-The charts and detailed interpretation are documented in the Week 01 journal.
+#### Day 05 — Feature Engineering & Data Encoding
+
+**Notebook:** [day5_feature_engineering.ipynb](week-01/day5_feature_engineering.ipynb)
+
+Converted `sex` into a binary numerical feature and applied one-hot encoding to `embarked`. The notebook explains the reference category and why nominal categories should not be assigned arbitrary ordinal values.
+
+#### Day 06 — Data Preprocessing & Pipeline
+
+**Notebook:** [day6_data_preprocessing_pipeline.ipynb](week-01/day6_data_preprocessing_pipeline.ipynb)
+
+Prepared the feature matrix and survival target, created a stratified 80/20 train/test split, and built a Scikit-learn pipeline with median imputation and standard scaling. The preprocessing steps are fitted on training data only to prevent data leakage.
+
+#### Day 07 — Model Training & Evaluation
+
+**Notebook:** [day7_model_training_evaluation.ipynb](week-01/day7_model_training_evaluation.ipynb)
+
+Trained Logistic Regression and Random Forest classifiers. Evaluated predictions using accuracy, confusion matrices, and classification reports, then compared the models while considering precision, recall, and F1-score.
 
 #### What this week is teaching me
 
 - Inspect first; transform second.
-- Choose missing-value strategies based on the feature and its distribution.
-- Prefer explicit, targeted transformations over broad deletion rules.
-- Treat outliers as questions to investigate, not errors to erase automatically.
-- Keep cleaning steps reproducible and explain why each one exists.
+- Make feature engineering explicit and preserve category meaning.
+- Split before fitting preprocessing steps to avoid data leakage.
+- Establish baseline models before increasing complexity.
+- Evaluate models with more than one metric and keep the test set unseen.
 
 ---
 
 ## Tech Stack & Tools
-
-These are the core tools currently used or planned throughout the learning journey:
 
 | Tool | Role in this repository |
 |---|---|
 | **Python** | Primary language for data analysis and engineering workflows |
 | **Pandas** | Data loading, inspection, transformation, and cleaning |
 | **Seaborn** | Sample datasets and statistical data visualization |
-| **Scikit-learn** | Planned foundation for preprocessing and machine learning |
-| **Jupyter Notebooks** | Interactive, reproducible experiments and technical notes |
-| **Git & GitHub** | Version control, progress tracking, and portfolio publishing |
-
-The stack will expand as new topics require additional tools. I will prioritize understanding the problem and the engineering trade-offs before adding complexity.
+| **Scikit-learn** | Preprocessing, pipelines, classification, and model evaluation |
+| **Jupyter Notebooks / Google Colab** | Interactive, reproducible experiments |
+| **Git & GitHub** | Version control, progress tracking, and public documentation |
 
 ---
 
 ## Future Roadmap
 
-This roadmap is a direction, not a claim that every topic has already been completed. I will update it as I work through each stage and publish the corresponding exercises.
+This roadmap is a direction, not a claim that every topic has already been completed. It will be updated as new work is published.
 
-- [x] **Week 01 — Data foundations and initial cleaning:** inspect the Titanic dataset, handle selected missing values, and remove duplicate rows.
-- [ ] **Data exploration & visualization:** investigate distributions, relationships, correlations, and patterns through EDA.
-- [ ] **Statistical foundations:** strengthen the ability to reason about distributions, variability, sampling, and uncertainty.
-- [ ] **Data preprocessing:** explore encoding, scaling, feature preparation, and robust validation practices.
-- [ ] **Machine learning foundations:** build and evaluate baseline models with Scikit-learn.
-- [ ] **Data engineering fundamentals:** learn how to design reliable data ingestion, transformation, and storage workflows.
-- [ ] **End-to-end projects:** connect analysis and engineering into documented, reproducible projects that solve practical problems.
+- [x] **Data foundations:** inspect and clean a real-world-style dataset.
+- [x] **Exploratory analysis:** investigate distributions, relationships, and correlations.
+- [x] **Feature engineering:** encode categorical features for machine learning.
+- [x] **Data preprocessing:** build a leakage-aware preprocessing workflow.
+- [x] **Machine learning foundations:** train and evaluate baseline classifiers.
+- [ ] **Statistical foundations:** deepen reasoning about distributions, sampling, and uncertainty.
+- [ ] **Data engineering fundamentals:** design reliable ingestion, transformation, and storage workflows.
+- [ ] **End-to-end projects:** connect analysis and engineering into documented, reproducible solutions.
 
 ---
 
 ## Working Principles
-
-A few principles will guide how I build and document throughout this repository:
 
 1. **Understand before automating.** Automation should make a sound process more reliable, not hide an unclear one.
 2. **Preserve data integrity.** Every cleaning decision should have a reason and a traceable effect.
@@ -158,8 +125,6 @@ A few principles will guide how I build and document throughout this repository:
 ## Follow the Journey
 
 This repository will grow week by week as I connect my software engineering and automation experience with the principles of data science and data engineering.
-
-I am building more than a collection of completed exercises. I am building the discipline to turn raw data into reliable insight — and, eventually, into dependable data-driven systems.
 
 **One week at a time. One experiment at a time. Always engineering with intention.**
 
